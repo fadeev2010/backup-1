@@ -47,6 +47,11 @@ module Backup
       # master/slave replication deployments.
       attr_accessor :oplog
 
+      ##
+      # option --archive instead of --out
+      attr_accessor :archive
+
+
       def initialize(model, database_id = nil, &block)
         super
         instance_eval(&block) if block_given?
@@ -120,7 +125,15 @@ module Backup
       def mongodump
         "#{utility(:mongodump)} #{name_option} #{credential_options} " \
           "#{connectivity_options} #{ipv6_option} #{oplog_option} " \
-          "#{user_options} --out='#{dump_packaging_path}'"
+          "#{user_options} #{out_option}='#{dump_packaging_path}'"
+      end
+
+      def out_option
+        if archive
+          "--archive"
+        else
+          "--out"
+        end
       end
 
       def name_option
